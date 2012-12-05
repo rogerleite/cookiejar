@@ -42,9 +42,9 @@ describe CookieValidation do
         # validate_cookie 'http://www.foo.com/', foobar
       end.should raise_error InvalidCookieError
     end
-    it "should fail for domains more than one level up" do
+    it "should fail for domains more than three levels" do
       lambda do
-        xyz = Cookie.from_set_cookie 'http://x.y.z.com/', 'foo=bar;domain=z.com'
+        xyz = Cookie.from_set_cookie 'http://x.y.z.w.com/', 'foo=bar;domain=z.com'
         # validate_cookie 'http://x.y.z.com/', xyz
       end.should raise_error InvalidCookieError
     end
@@ -81,7 +81,7 @@ describe CookieValidation do
     it "should handle setting a cookie on a higher path" do
       higher = Cookie.from_set_cookie 'http://foo.com/bar/baz/', 'foo=bar;path=/bar/'
       CookieValidation.validate_cookie('http://foo.com/bar/baz/', higher)
-    end 
+    end
   end
   describe '#cookie_base_path' do
     it "should leave '/' alone" do
@@ -134,7 +134,7 @@ describe CookieValidation do
       ['127.0.0.1']
     end
     it "should handle local addresses" do
-      CookieValidation.compute_search_domains('http://zero/').should == 
+      CookieValidation.compute_search_domains('http://zero/').should ==
       ['zero.local', '.zero.local', '.local']
     end
   end
@@ -172,7 +172,7 @@ describe CookieValidation do
     end
     it "should handle a URI object" do
       CookieValidation.effective_host(URI.parse('http://example.com/')).should == 'example.com'
-    end	
+    end
     it "should add a local suffix on unqualified hosts" do
       CookieValidation.effective_host('localhost').should == 'localhost.local'
     end
@@ -240,5 +240,5 @@ describe CookieValidation do
     it "should max out at 2038 on 32bit systems" do
       CookieValidation.parse_set_cookie("TRACK_USER_P=98237480810003948000782774;expires=Sat, 30-Jun-2040 05:39:49 GMT;path=/")[:expires_at].to_i.should >= 0x7FFFFFFF
     end
-  end  
+  end
 end
